@@ -1,44 +1,100 @@
+# src/explore_data.py
+
 import matplotlib.pyplot as plt
+import seaborn as sns
 import numpy as np
 import pandas as pd
 
-def explore_data(X_train, y_train, X_test, y_test):
+def explore_class_distribution(y, title="Class Distribution"):
     """
-    Displays basic information about the training and testing data.
+    Visualizes the distribution of classes in the dataset.
 
     Parameters:
-        X_train (ndarray): Training images.
-        y_train (ndarray): Training labels.
-        X_test (ndarray): Testing images.
-        y_test (ndarray): Testing labels.
+        y (ndarray): Label array.
+        title (str): Plot title.
     """
-    print("Exploring Data...")
-    print(f"Training data shape: {X_train.shape}")
-    print(f"Training labels shape: {y_train.shape}")
-    print(f"Testing data shape: {X_test.shape}")
-    print(f"Testing labels shape: {y_test.shape}")
-    
-    print("\n Displaying first few labels (Training):")
-    print(y_train[:10])
+    plt.figure(figsize=(12, 6))
+    sns.countplot(x=y, hue=y, dodge=False, palette="viridis", legend=False)
+    plt.title(title)
+    plt.xlabel("Classes")
+    plt.ylabel("Count")
+    plt.savefig("../report/class_distribution.png")
+    plt.show()
 
-    print("\n Unique labels:", np.unique(y_train))
-    print(" Unique labels in test set:", np.unique(y_test))
-
-def visualize_sample_images(X, y, samples=5):
+def analyze_pixel_distribution(X):
     """
-    Visualizes a few sample images from the dataset.
+    Analyzes the distribution of pixel values in the dataset.
 
     Parameters:
         X (ndarray): Image data (flattened).
-        y (ndarray): Labels corresponding to the images.
+    """
+    plt.figure(figsize=(12, 6))
+    sns.histplot(X.flatten(), bins=50, kde=True, color="blue")
+    plt.title("Pixel Value Distribution")
+    plt.xlabel("Pixel Intensity")
+    plt.ylabel("Frequency")
+    plt.savefig("../report/pixel_value_distribution.png")
+    plt.show()
+
+def visualize_sample_images(X, y, samples=10):
+    """
+    Visualizes a set of sample images from the dataset.
+
+    Parameters:
+        X (ndarray): Image data (reshaped).
+        y (ndarray): Corresponding labels.
         samples (int): Number of samples to display.
     """
-    print(f"\n Visualizing {samples} sample images...")
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(15, 5))
     for i in range(samples):
         plt.subplot(1, samples, i + 1)
-        image = X[i].reshape(28, 28)
-        plt.imshow(image, cmap='gray')
+        plt.imshow(X[i].reshape(28, 28), cmap='gray')
         plt.title(f"Label: {y[i]}")
         plt.axis('off')
+    plt.savefig("../report/sample_images.png")
     plt.show()
+
+def correlation_heatmap(X, sample_size=500):
+    """
+    Displays a correlation heatmap of pixel values (optimized).
+
+    Parameters:
+        X (ndarray): Image data (flattened).
+        sample_size (int): Number of images to sample for heatmap.
+    """
+    print("\nGenerating Correlation Heatmap...")
+
+    # Randomly sample images for speed
+    X_sample = X[:sample_size].reshape(sample_size, -1)
+
+    # Remove columns with zero variance
+    zero_variance_columns = np.std(X_sample, axis=0) == 0
+    X_sample = X_sample[:, ~zero_variance_columns]
+
+    if X_sample.shape[1] == 0:
+        print("All columns have zero variance. Correlation Heatmap cannot be generated.")
+        return
+
+    # Calculate correlation matrix
+    correlation_matrix = np.corrcoef(X_sample, rowvar=False)
+    
+    plt.figure(figsize=(12, 10))
+    sns.heatmap(correlation_matrix, cmap='viridis', cbar=True)
+    plt.title("Correlation Heatmap (Pixel Intensity)")
+    plt.savefig("../report/correlation_heatmap.png")
+    plt.show()
+
+
+def missing_value_analysis(X):
+    """
+    Checks for missing values in the dataset.
+
+    Parameters:
+        X (ndarray): Image data (flattened).
+    """
+    missing_values = np.sum(np.isnan(X))
+    print(f"Missing Values in the Dataset: {missing_values}")
+    if missing_values > 0:
+        print("Warning: There are missing values in the data.")
+    else:
+        print("No missing values detected.")

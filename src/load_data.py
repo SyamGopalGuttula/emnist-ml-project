@@ -1,20 +1,31 @@
 import pandas as pd
-import numpy as np
+import os
 
-def load_emnist_data(train_path: str, test_path: str):
+def load_emnist_data(subset="balanced"):
     """
-    Loads the EMNIST dataset from CSV files.
+    Loads the EMNIST dataset based on the chosen subset.
 
     Parameters:
-        train_path (str): Path to the training CSV file.
-        test_path (str): Path to the testing CSV file.
+        subset (str): The EMNIST subset to load ("balanced", "byclass", "letters", etc.)
 
     Returns:
-        tuple: X_train, y_train, X_test, y_test (NumPy arrays)
+        tuple: X_train, y_train, X_test, y_test (numpy arrays)
     """
-    print("Loading EMNIST dataset...")
-    
-    # Load CSV files using pandas
+    data_path = "../data/raw/"
+
+    if subset == "balanced":
+        train_path = os.path.join(data_path, "emnist-balanced-train.csv")
+        test_path = os.path.join(data_path, "emnist-balanced-test.csv")
+    elif subset == "byclass":
+        train_path = os.path.join(data_path, "emnist-byclass-train.csv")
+        test_path = os.path.join(data_path, "emnist-byclass-test.csv")
+    elif subset == "letters":
+        train_path = os.path.join(data_path, "emnist-letters-train.csv")
+        test_path = os.path.join(data_path, "emnist-letters-test.csv")
+    else:
+        raise ValueError("Invalid subset. Choose from 'balanced', 'byclass', 'letters'.")
+
+    # Load data using pandas
     train_data = pd.read_csv(train_path, header=None)
     test_data = pd.read_csv(test_path, header=None)
 
@@ -25,6 +36,8 @@ def load_emnist_data(train_path: str, test_path: str):
     y_test = test_data.iloc[:, 0].values
     X_test = test_data.iloc[:, 1:].values
 
-    print(f"Data loaded. Training shape: {X_train.shape}, Test shape: {X_test.shape}")
-    
+    print(f"Loaded EMNIST {subset} subset.")
+    print(f"Training Data Shape: {X_train.shape}, {y_train.shape}")
+    print(f"Testing Data Shape: {X_test.shape}, {y_test.shape}")
+
     return X_train, y_train, X_test, y_test
