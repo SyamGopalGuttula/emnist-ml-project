@@ -1,0 +1,23 @@
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore virtual environments
+venv/
+.env/
+
+# Ignore data files (keep only raw and processed)
+data/raw/*
+!data/raw/  # Keep the raw folder but ignore its contents
+data/processed/*
+!data/processed/  # Keep the processed folder but ignore its contents
+
+# Ignore model files
+models/*
