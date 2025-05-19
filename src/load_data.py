@@ -1,5 +1,3 @@
-# src/load_data.py
-
 import pandas as pd
 import numpy as np
 
